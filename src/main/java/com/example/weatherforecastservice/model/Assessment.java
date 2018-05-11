@@ -23,14 +23,20 @@ public class Assessment {
     private Long Id;
 
     @NotBlank
-    @ManyToOne
-    @JoinColumn(name = "ServiceUserId" ,nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ServiceUserId" ,updatable=false, insertable = false)
     private ServiceUser user;
 
-    @ManyToOne
+    @Column(name = "ServiceUserId")
+    private Long ServiceUserId;
+
     @NotBlank
-    @JoinColumn(name = "WeatherDetailId", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WeatherDetailId", updatable=false, insertable = false)
     private WeatherDetail detail;
+
+    @Column(name = "WeatherDetailId")
+    private Long WeatherDetailId;
 
     @NotBlank
     @Column(name = "QueryDate")

@@ -17,7 +17,7 @@ public class QueryOption {
     @Id
     @Column(name = "Id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Byte Id;
 
     @Column(name = "QueryDescription")
     private String QueryDescription;
@@ -31,7 +31,7 @@ public class QueryOption {
 
         private int QueryTypes;
 
-        private QueryTypes(int queryTypes) {
+        QueryTypes(int queryTypes) {
             this.QueryTypes = queryTypes;
         }
     }

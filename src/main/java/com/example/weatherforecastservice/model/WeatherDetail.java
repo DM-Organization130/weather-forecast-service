@@ -23,16 +23,6 @@ public class WeatherDetail {
     @Column(name = "Id")
     private Long Id;
 
-    @NotBlank
-    @ManyToOne
-    @JoinColumn(name = "WeatherHeadlineId", nullable = false)
-    private WeatherHeadline headline;
-
-    @Column(name = "QueryDate")
-    @Temporal(TemporalType.DATE)
-    @NotBlank
-    private Date QueryDate;
-
     @Column(name = "Description")
     @NotBlank
     private String Description;

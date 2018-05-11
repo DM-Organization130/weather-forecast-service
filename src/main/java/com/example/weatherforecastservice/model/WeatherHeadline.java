@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -29,6 +30,11 @@ public class WeatherHeadline {
     @ManyToOne
     @JoinColumn(name = "SourceServiceId", nullable = false)
     private SourceService sourceSevrice;
+
+    @NotBlank
+    @OneToMany
+    @JoinColumn(name = "WeatherHeadlineId", nullable = false)
+    private List<WeatherDetail> weatherDetails;
 
     @Column(name = "QueryType")
     @NotBlank
