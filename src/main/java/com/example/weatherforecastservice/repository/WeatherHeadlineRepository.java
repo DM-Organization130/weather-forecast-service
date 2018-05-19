@@ -12,7 +12,7 @@ import java.util.List;
 public interface WeatherHeadlineRepository extends JpaRepository<WeatherHeadline, Long> {
 
     @Query ("SELECT w FROM WeatherHeadline w WHERE w.city.Id = ?1 AND w.QueryType = ?2  AND w.QueryDate >= ?3")
-    List<WeatherHeadline> getWeatherHeadline (Long city, Byte queryType, Date date);
+    List<WeatherHeadline> getWeatherHeadline (Long city, Long queryType, Date date);
 
 
 

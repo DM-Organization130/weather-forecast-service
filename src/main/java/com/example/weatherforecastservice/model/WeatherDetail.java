@@ -7,8 +7,6 @@ import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import java.util.Date;
 
 @NoArgsConstructor
 @Getter
@@ -23,24 +21,23 @@ public class WeatherDetail {
     @Column(name = "Id")
     private Long Id;
 
-    @Column(name = "Description")
-    @NotBlank
+    @Column(name = "Description", nullable = false)
     private String Description;
 
-    @Column(name = "Temperature")
-    @NotBlank
-    private Long Temperature;
+    @Column(name = "MinTemperature", nullable = false)
+    private Long MinTemperature;
 
-    @Column(name = "Pressure")
+    @Column(name = "MaxTemperature", nullable = false)
+    private Long MaxTemperature;
+
+    @Column(name = "Pressure", nullable = false)
     private Long Pressure;
 
-    @Column(name = "Rainy")
-    private Long Rainy;
+    @Column(name = "Humidity", nullable = false)
+    private Long Humidity;
 
-    @Column(name = "Moisture")
-    private Long Moisture;
-
-    @Column(name = "Wind")
+    @Column(name = "Wind", nullable = false)
     private Long Wind;
+
 
 }

@@ -1,7 +1,11 @@
 package com.example.weatherforecastservice.controller;
 
+import com.example.weatherforecastservice.ServiceCall;
 import com.example.weatherforecastservice.model.*;
 import com.example.weatherforecastservice.repository.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.jayway.jsonpath.JsonPath;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.svenson.JSONParser;
@@ -14,13 +18,12 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.LongFunction;
 
 @RestController
 public class WeatherForecastController {
@@ -39,94 +42,106 @@ public class WeatherForecastController {
     private AssessmentRepository assessmentRepository;
 
     @GetMapping("/forecastbycity")
-    public  List<WeatherHeadline> GetForecasts(String city, String country, Byte queryOptionId)
+    public  List<WeatherHeadline> GetForecasts(String city, String country, Long queryOptionId)
     {
-        List<WeatherHeadline> forecast = new ArrayList<>();
         City c = cityRepository.matchCity(city, country);
         List<SourceQueryOption> sourceQueryOptions = sourceQueryOptionRepository.getSourceQueryOptions(queryOptionId);
 
 
+        if(c == null)
+        {
+            SourceService cityService = sourceServiceRepository.FindCityService();
+            SourceQueryOption sqo = sourceQueryOptionRepository.getCityQueryOption(cityService.getId());
+
+            String urlString = cityService.getServiceURL();
+            urlString += sqo.getRequestPath();
+            urlString =  urlString
+                    .replace("{city}",city)
+                    .replace("{apikey}", cityService.getAPIKey());
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpGet request = new HttpGet(urlString);
+
+            try {
+                HttpResponse response = client.execute(request);
+                HttpEntity entity = response.getEntity();
+                String content = EntityUtils.toString(entity);
+
+                Gson gson = new Gson();
+                HashMap<String, String> hmap = (HashMap<String, String>) gson.fromJson(sqo.getResponseMapping(), HashMap.class);
+
+                for (String key: hmap.keySet()
+                        ) {
+                    content = content.replace(hmap.get(key), key);
+                }
+
+                JsonElement jsonElement = gson.toJsonTree(JsonPath.read(content, sqo.getResponsePath()));
+
+                c = gson.fromJson(jsonElement, City.class);
+
+                /*
+
+                LinkedHashMap lhm = JsonPath.read(content, sqo.getResponsePath());
+                JsonElement jsonElement = gson.toJsonTree(lhm);
+                c = gson.fromJson(jsonElement, City.class);
+
+                 */
+
+
+                if (cityRepository.matchCity(c.getName(), c.getCountry()) == null){
+                    cityRepository.save(c);
+                }
+                else
+                    c = cityRepository.matchCity(c.getName(), c.getCountry());
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
         Date currentDate = new Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(15));
 
-        weatherHeadlineRepository.getWeatherHeadline(c.getId(), sourceQueryOptions.get(1).getQueryOption().getId(), currentDate);
+        List<WeatherHeadline> forecast = weatherHeadlineRepository.getWeatherHeadline(c.getId(), queryOptionId , currentDate);
 
         sourceQueryOptions.removeIf(sqo1 ->
                 forecast.stream().anyMatch(f ->
 
-                        f.getSourceSevrice().getId().equals(sqo1.getSourceService().getId())
+                        f.getSourceService().getId().equals(sqo1.getSourceService().getId())
+
                 )
         );
 
 
-
         for (SourceQueryOption sqo1: sourceQueryOptions)
         {
+            List<WeatherDetail> weatherDetails;
+
+            Gson gson = new Gson();
+            HashMap<String, String> hmap = (HashMap<String, String>) gson.fromJson(sqo1.getResponseMapping(), HashMap.class);
+
+            String rp =  sqo1.getRequestPath();
+            rp = rp.replace("{apikey}",sqo1.getSourceService().getAPIKey()).
+                    replace("{lat}", c.getLatitude()).
+                    replace("{lng}",c.getLongitude()).
+                    replace("{city}",c.getName());
+
+            String url = (sqo1.getSourceService().getServiceURL() + rp);
+
+            weatherDetails = ServiceCall.RestGet(url, sqo1.getResponsePath() , hmap);
+
             Date date = new Date();
-            List<WeatherDetail> weatherDetails = QueryServices(sqo1, c);
             WeatherHeadline wh = new WeatherHeadline();
             wh.setQueryDate(date);
             wh.setCity(c);
             wh.setQueryType(sqo1.getQueryOption().getId());
-            wh.setSourceSevrice(sqo1.getSourceService());
+            wh.setSourceService(sqo1.getSourceService());
             wh.setWeatherDetails(weatherDetails);
             forecast.add(wh);
             weatherHeadlineRepository.save(wh);
 
         }
 
-
-        if(c==null)
-        {
-            SourceService cityService = sourceServiceRepository.FindCityService();
-            SourceQueryOption sqo = sourceQueryOptionRepository.getCityQueryOption(cityService.getId());
-
-            String urlString = cityService.getServiceURL();
-            urlString += sqo.getJsonFormat();
-            urlString =  urlString
-                    .replace("{city}",city)
-                    .replace("{apikey}", cityService.getAPIKey());
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpGet request = new HttpGet("http://" + urlString);
-            try {
-                HttpResponse response = client.execute(request);
-                HttpEntity entity = response.getEntity();
-                String content = EntityUtils.toString(entity);
-                JSONParser parser = new JSONParser();
-                HashMap hm = parser.parse(HashMap.class, content);
-                ArrayList list = (ArrayList) hm.get("geonames");
-                HashMap<String, String> map = (HashMap) list.get(0);
-                c = new City();
-                c.setName(map.get("name"));
-                c.setAdminName(map.get("adminName1"));
-                c.setCountry(map.get("countryName"));
-                c.setFeatureClass(map.get("fcodeName"));
-                c.setLatitude(map.get("lat"));
-                c.setLongitude(map.get("lng"));
-
-
-                if (cityRepository.matchCity(c.getName(), c.getCountry()) == null){
-                    cityRepository.save(c);
-                }
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-
-
-        }
-
         return forecast;
-    }
-
-    @PostMapping("/postassessment")
-     public void postAssessment(Assessment assessment)
-     {
-         assessmentRepository.save(assessment);
-
-     }
-
-    private List<WeatherDetail> QueryServices(SourceQueryOption sqo, City city){
-        return null;
     }
 
 }

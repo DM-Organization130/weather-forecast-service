@@ -15,6 +15,6 @@ public interface SourceQueryOptionRepository extends JpaRepository<SourceQueryOp
     SourceQueryOption getCityQueryOption(Long serviceId);
 
     @Query("SELECT q FROM SourceQueryOption q WHERE q.queryOption.Id = ?1 ")
-    List<SourceQueryOption> getSourceQueryOptions(Byte queryOptionId);
+    List<SourceQueryOption> getSourceQueryOptions(Long queryOptionId);
 
 }

@@ -26,29 +26,24 @@ public class WeatherHeadline {
     @Column(name = "Id")
     private Long Id;
 
-    @NotBlank
     @ManyToOne
     @JoinColumn(name = "SourceServiceId", nullable = false)
-    private SourceService sourceSevrice;
+    private SourceService SourceService;
 
-    @NotBlank
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "WeatherHeadlineId", nullable = false)
     private List<WeatherDetail> weatherDetails;
 
-    @Column(name = "QueryType")
-    @NotBlank
-    private byte QueryType;
+    @Column(name = "QueryType", nullable = false)
+    private Long QueryType;
 
-    @NotBlank
     @ManyToOne
     @JoinColumn(name = "CityId", nullable = false)
     private City city;
 
-    @NotBlank
     @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
-    @Column(name = "QueryDate")
+    @Column(name = "QueryDate", nullable = false)
     private Date QueryDate;
 
 

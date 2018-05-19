@@ -19,22 +19,22 @@ public class City {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(name = "Name")
+    @Column(name = "Name", nullable = false)
     private String Name;
 
-    @Column(name = "adminName")
+    @Column(name = "AdminName", nullable = false)
     private String AdminName;
 
-    @Column(name = "Country")
+    @Column(name = "Country", nullable = false)
     private String Country;
 
-    @Column(name = "FeatureClass")
+    @Column(name = "FeatureClass", nullable = false)
     private String FeatureClass;
 
-    @Column(name = "Latitude")
+    @Column(name = "Latitude", nullable = false)
     private String Latitude;
 
-    @Column(name = "Longitude")
+    @Column(name = "Longitude", nullable = false)
     private String Longitude;
 
 }

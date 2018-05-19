@@ -20,10 +20,10 @@ public class ServiceUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(name = "Explanation" , length = 200)
-    private String Explanation;
+    @Column(name = "Description" , length = 200, nullable = false)
+    private String Description;
 
-    @Column(name = "DailyLimit")
+    @Column(name = "DailyLimit", nullable = false)
     private Long DailyLimit;
 
 }

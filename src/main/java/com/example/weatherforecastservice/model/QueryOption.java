@@ -17,17 +17,18 @@ public class QueryOption {
     @Id
     @Column(name = "Id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Byte Id;
+    private Long Id;
 
-    @Column(name = "QueryDescription")
+    @Column(name = "QueryDescription", nullable = false)
     private String QueryDescription;
 
     public enum QueryTypes {
-        Metric(0),
+        Measure(0),
         Day(1),
         ThreeDay(2),
         Weekly(3),
-        Monthly(4);
+        Monthly(4),
+        CityQuery(5);
 
         private int QueryTypes;
 

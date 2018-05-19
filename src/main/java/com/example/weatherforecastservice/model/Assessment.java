@@ -22,29 +22,25 @@ public class Assessment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @NotBlank
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ServiceUserId" ,updatable=false, insertable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ServiceUserId" ,updatable=false, insertable = false, nullable = false)
     private ServiceUser user;
 
-    @Column(name = "ServiceUserId")
+    @Column(name = "ServiceUserId", nullable = false)
     private Long ServiceUserId;
 
-    @NotBlank
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "WeatherDetailId", updatable=false, insertable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "WeatherDetailId", updatable=false, insertable = false, nullable = false)
     private WeatherDetail detail;
 
-    @Column(name = "WeatherDetailId")
+    @Column(name = "WeatherDetailId", nullable = false)
     private Long WeatherDetailId;
 
-    @NotBlank
-    @Column(name = "QueryDate")
+    @Column(name = "QueryDate", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date QueryDate;
 
-    @NotBlank
-    @Column(name = "Point")
+    @Column(name = "Point", nullable = false)
     private int Point;
 
 

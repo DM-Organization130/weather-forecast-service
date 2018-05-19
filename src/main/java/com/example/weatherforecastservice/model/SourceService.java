@@ -20,17 +20,16 @@ public class SourceService {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(name = "Description" , length = 200)
+    @Column(name = "Description" , length = 200, nullable = false)
     private String Description;
 
-    @Column(name = "ServiceURL")
+    @Column(name = "ServiceURL", nullable = false)
     private String ServiceURL;
 
-    @Column(name = "DailyLimit")
+    @Column(name = "DailyLimit", nullable = false)
     private Long DailyLimit;
 
-    @Column(name = "APIKey" , unique = true)
-    @NotBlank
+    @Column(name = "APIKey" , unique = true, nullable = false)
     private  String APIKey;
 
 }

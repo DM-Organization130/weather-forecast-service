@@ -21,28 +21,31 @@ public class SourceQueryOption {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(name = "QueryDescription")
+    @Column(name = "QueryDescription", nullable = false)
     private String QueryDescription;
 
-    @ManyToOne
-    @JoinColumn(name = "SourceServiceId", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "SourceServiceId", updatable=false, insertable = false, nullable = false)
     private SourceService sourceService;
 
+    @Column(name = "SourceServiceId", nullable = false)
+    private Long SourceServiceId;
 
-    @ManyToOne
-    @JoinColumn(name = "QueryOptionId" , nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "QueryOptionId" , updatable=false, insertable = false, nullable = false)
     private QueryOption queryOption;
 
+    @Column(name = "QueryOptionId", nullable = false)
+    private Long QueryOptionId;
+
     @JsonIgnoreProperties
-    @Column(name = "JsonFormat")
-    private String JsonFormat;
+    @Column(name = "RequestPath", nullable = false)
+    private String RequestPath;
 
-    @Column(name = "ResponseRegex")
-    private String ResponseRegex ;
+    @Column(name = "ResponsePath", nullable = false)
+    private String ResponsePath ;
 
-
-
-
-
+    @Column(name = "ResponseMapping", nullable = false)
+    private String ResponseMapping ;
 
 }
