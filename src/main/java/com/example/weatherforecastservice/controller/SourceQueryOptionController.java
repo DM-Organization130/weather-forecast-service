@@ -1,9 +1,9 @@
 package com.example.weatherforecastservice.controller;
 
+import com.example.weatherforecastservice.model.ServiceUser;
 import com.example.weatherforecastservice.model.SourceQueryOption;
+import com.example.weatherforecastservice.repository.ServiceUserRepository;
 import com.example.weatherforecastservice.repository.SourceQueryOptionRepository;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,24 +16,39 @@ import java.util.List;
 public class SourceQueryOptionController {
     @Autowired
     private SourceQueryOptionRepository sourceQueryOptionRepository;
+    @Autowired
+    private ServiceUserRepository serviceUserRepository;
+
 
     @PostMapping("/addsourcequeryoption")
-    public SourceQueryOption addSourceQueryOption(@RequestBody String  sqoString)
+    public SourceQueryOption addSourceQueryOption(String userKey, @RequestBody SourceQueryOption sourceQueryOption)
     {
-        Gson gson = new Gson();
-        JsonElement jsonElement = gson.toJsonTree(sqoString);
-        SourceQueryOption sqo = gson.fromJson(sqoString,SourceQueryOption.class);
+        if(serviceUserRepository.ısThereServiceUser(userKey, (byte) 1, ServiceUser.adminKey))
+        {
+            return null;
+        }
+        return sourceQueryOptionRepository.save(sourceQueryOption);
 
-        return sourceQueryOptionRepository.save(sqo);
     }
 
     @GetMapping("/listsourcequeryoption")
-    public List<SourceQueryOption> listSourceQueryOption()
+    public List<SourceQueryOption> listSourceQueryOption(String userKey)
     {
+        if (serviceUserRepository.ısThereServiceUser(userKey, (byte) 1, ServiceUser.adminKey))
+        {
+            return null;
+        }
         return sourceQueryOptionRepository.findAll();
     }
 
     @GetMapping("/deletesourcequeryoption")
-    public void deleteSourceQueryOption(Long id){sourceQueryOptionRepository.deleteById(id);}
+    public void deleteSourceQueryOption(String userKey, Long id)
+    {
+        if (serviceUserRepository.ısThereServiceUser(userKey, (byte) 1, ServiceUser.adminKey))
+        {
+            return;
+        }
+        sourceQueryOptionRepository.deleteById(id);
+    }
 
 }

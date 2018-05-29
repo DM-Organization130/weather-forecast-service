@@ -23,7 +23,6 @@ public class ServiceCall {
         HttpGet request = new HttpGet(url);
         try {
 
-
             HttpResponse response = client.execute(request);
             HttpEntity entity = response.getEntity();
             String content = EntityUtils.toString(entity);

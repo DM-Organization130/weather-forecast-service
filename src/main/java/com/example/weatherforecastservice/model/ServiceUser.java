@@ -3,13 +3,18 @@ package com.example.weatherforecastservice.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 
 @NoArgsConstructor
 @Getter
 @Setter
+
+@Component
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -20,10 +25,24 @@ public class ServiceUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
+    @Column(name = "UserType", nullable = false)
+    private byte UserType;
+
+    @Column(name = "APIKey" , unique = true, nullable = false)
+    private  String APIKey;
+
     @Column(name = "Description" , length = 200, nullable = false)
     private String Description;
 
     @Column(name = "DailyLimit", nullable = false)
     private Long DailyLimit;
 
+
+    public static String adminKey;
+
+    @Value("${adminKey}")
+    public void setAdminKey(String ak) {
+        adminKey = ak;
+    }
 }
+

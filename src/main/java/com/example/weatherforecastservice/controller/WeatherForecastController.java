@@ -6,6 +6,8 @@ import com.example.weatherforecastservice.repository.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.jayway.jsonpath.JsonPath;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.svenson.JSONParser;
@@ -40,10 +42,17 @@ public class WeatherForecastController {
     private WeatherHeadlineRepository weatherHeadlineRepository;
     @Autowired
     private AssessmentRepository assessmentRepository;
+    @Autowired
+    private ServiceUserRepository serviceUserRepository;
 
     @GetMapping("/forecastbycity")
-    public  List<WeatherHeadline> GetForecasts(String city, String country, Long queryOptionId)
+    public  List<WeatherHeadline> GetForecasts(String apiKey, String city, String country, Long queryOptionId)
     {
+        if (serviceUserRepository.ısThereServiceUser(apiKey, (byte) 0, ServiceUser.adminKey))
+        {
+            return null;
+        }
+
         City c = cityRepository.matchCity(city, country);
         List<SourceQueryOption> sourceQueryOptions = sourceQueryOptionRepository.getSourceQueryOptions(queryOptionId);
 
