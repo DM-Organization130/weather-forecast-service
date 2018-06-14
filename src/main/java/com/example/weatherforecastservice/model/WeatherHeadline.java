@@ -30,6 +30,10 @@ public class WeatherHeadline {
     @JoinColumn(name = "SourceServiceId", nullable = false)
     private SourceService SourceService;
 
+    @ManyToOne
+    @JoinColumn(name = "ServiceUserId", nullable = false)
+    private ServiceUser ServiceUser;
+
     @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "WeatherHeadlineId", nullable = false)
     private List<WeatherDetail> weatherDetails;

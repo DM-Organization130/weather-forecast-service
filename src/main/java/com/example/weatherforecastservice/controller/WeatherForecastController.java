@@ -20,6 +20,8 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,7 +50,7 @@ public class WeatherForecastController {
     @GetMapping("/forecastbycity")
     public  List<WeatherHeadline> GetForecasts(String apiKey, String city, String country, Long queryOptionId)
     {
-        if (serviceUserRepository.ısThereServiceUser(apiKey, (byte) 0, ServiceUser.adminKey))
+        if (!serviceUserRepository.ısThereServiceUser(apiKey, (byte) 0, ServiceUser.adminKey))
         {
             return null;
         }
@@ -121,6 +123,22 @@ public class WeatherForecastController {
         );
 
 
+        ServiceUser serviceUser = serviceUserRepository.findServiceUser(apiKey);
+
+        if (weatherHeadlineRepository.latestWeatherHeadlineOfUser(3L).before(Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS))))
+        {
+            serviceUser.setLimitCounter((long) 0);
+        }
+
+        if (serviceUser.getDailyLimit() < serviceUser.getLimitCounter())
+        {
+            return null;
+        }
+
+        serviceUser.setLimitCounter(serviceUser.getLimitCounter()+1);
+        serviceUserRepository.save(serviceUser);
+
+
         for (SourceQueryOption sqo1: sourceQueryOptions)
         {
             List<WeatherDetail> weatherDetails;
@@ -138,12 +156,20 @@ public class WeatherForecastController {
 
             weatherDetails = ServiceCall.RestGet(url, sqo1.getResponsePath() , hmap);
 
+            SourceService sourceService = sqo1.getSourceService();
+
+            if(weatherHeadlineRepository.isLimitExceeded(Date.from(Instant.now().truncatedTo(ChronoUnit.DAYS)), Date.from(Instant.now().plus(1,ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS)), sqo1.getSourceServiceId()))
+            {
+                return null;
+            }
+
             Date date = new Date();
             WeatherHeadline wh = new WeatherHeadline();
             wh.setQueryDate(date);
             wh.setCity(c);
             wh.setQueryType(sqo1.getQueryOption().getId());
-            wh.setSourceService(sqo1.getSourceService());
+            wh.setSourceService(sourceService);
+            wh.setServiceUser(serviceUser);
             wh.setWeatherDetails(weatherDetails);
             forecast.add(wh);
             weatherHeadlineRepository.save(wh);

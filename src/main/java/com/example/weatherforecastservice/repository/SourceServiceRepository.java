@@ -11,4 +11,5 @@ public interface SourceServiceRepository extends JpaRepository<SourceService, Lo
 
     @Query("SELECT s FROM SourceService s WHERE s.Description ='CityService'")
     SourceService FindCityService();
+
 }

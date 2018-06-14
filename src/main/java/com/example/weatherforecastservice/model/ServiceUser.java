@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @NoArgsConstructor
 @Getter
@@ -37,6 +38,8 @@ public class ServiceUser {
     @Column(name = "DailyLimit", nullable = false)
     private Long DailyLimit;
 
+    @Column(name = "LimitCounter", nullable = false)
+    private Long LimitCounter;
 
     public static String adminKey;
 
